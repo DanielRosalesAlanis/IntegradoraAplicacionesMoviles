@@ -8,6 +8,7 @@ import androidx.compose.ui.unit.dp
 import mx.edu.utez.integradoraaplicacionesmoviles.domain.model.Song
 import mx.edu.utez.integradoraaplicacionesmoviles.ui.viewmodel.SongViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongFormScreen(
     viewModel: SongViewModel,
