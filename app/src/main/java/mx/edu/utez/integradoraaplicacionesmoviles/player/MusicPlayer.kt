@@ -10,6 +10,7 @@ class MusicPlayer(context: Context) {
     private val player = ExoPlayer.Builder(context).build()
 
     fun play(song: Song) {
+        player.stop()
         player.setMediaItem(MediaItem.fromUri(song.audioUrl ?: ""))
         player.prepare()
         player.play()

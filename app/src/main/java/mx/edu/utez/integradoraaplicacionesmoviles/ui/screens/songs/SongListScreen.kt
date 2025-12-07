@@ -7,13 +7,17 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import mx.edu.utez.integradoraaplicacionesmoviles.domain.model.Song
 import mx.edu.utez.integradoraaplicacionesmoviles.ui.components.SongItemCard
+import mx.edu.utez.integradoraaplicacionesmoviles.ui.viewmodel.PlayerViewModel
 import mx.edu.utez.integradoraaplicacionesmoviles.ui.viewmodel.SongViewModel
 
 @Composable
 fun SongListScreen(
     viewModel: SongViewModel,
-    onNavigateToForm: (Int?) -> Unit
+    playerViewModel: PlayerViewModel,
+    onNavigateToForm: (Int?) -> Unit,
+    onSongSelected: () -> Unit
 ) {
     val songs by viewModel.songs.collectAsState()
     val loading by viewModel.loading.collectAsState()
@@ -29,16 +33,28 @@ fun SongListScreen(
             }
         }
     ) { padding ->
-        Column(Modifier.padding(padding).padding(16.dp)) {
+        Column(
+            Modifier
+                .padding(padding)
+                .padding(16.dp)
+        ) {
+
             if (loading) {
                 CircularProgressIndicator()
             } else {
                 LazyColumn {
-                    items(songs) { song ->
+                    items(songs) { song: Song ->
                         SongItemCard(
                             song = song,
                             onClick = {
-                                onNavigateToForm(song.id)
+                                // ACTUALIZA LA PLAYLIST
+                                playerViewModel.setPlaylist(songs)
+
+                                // ESTABLECE ESTA COMO LA CANCIÓN ACTUAL
+                                playerViewModel.setCurrentSong(song)
+
+                                // LANZA LA REPRODUCCIÓN DESDE MainActivity
+                                onSongSelected()
                             }
                         )
                     }
