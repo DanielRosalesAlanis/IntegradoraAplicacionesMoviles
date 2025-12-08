@@ -10,9 +10,10 @@ import mx.edu.utez.integradoraaplicacionesmoviles.ui.screens.home.HomeScreen
 import mx.edu.utez.integradoraaplicacionesmoviles.ui.screens.songform.SongFormScreen
 import mx.edu.utez.integradoraaplicacionesmoviles.ui.screens.songs.SongListScreen
 import mx.edu.utez.integradoraaplicacionesmoviles.ui.viewmodel.SongViewModel
+import mx.edu.utez.integradoraaplicacionesmoviles.ui.viewmodel.PlayerViewModel
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(playerViewModel: PlayerViewModel) {
 
     val navController = rememberNavController()
     val songViewModel = SongViewModel()
@@ -24,25 +25,26 @@ fun AppNavigation() {
 
         composable("home") {
             HomeScreen(
-                onNavigateToSongs = {
-                    navController.navigate("songs")
-                }
+                playerViewModel = playerViewModel,
+                onNavigateToSongs = { navController.navigate("songs") }
             )
+
         }
 
         composable("songs") {
             SongListScreen(
                 viewModel = songViewModel,
+                playerViewModel = playerViewModel,
                 onNavigateToForm = { songId ->
-                    val route = if (songId != null) {
-                        "songForm/$songId"
-                    } else {
-                        "songForm"
-                    }
+                    val route = if (songId != null) "songForm/$songId" else "songForm"
                     navController.navigate(route)
+                },
+                onSongSelected = {
+                    navController.navigate("home")
                 }
             )
         }
+
 
         composable(
             route = "songForm/{songId}",
@@ -52,13 +54,15 @@ fun AppNavigation() {
                     defaultValue = -1
                 }
             )
-        ) { backStackEntry ->
-            val id = backStackEntry.arguments?.getInt("songId").takeIf { it != -1 }
+        ) { entry ->
+            val id = entry.arguments?.getInt("songId").takeIf { it != -1 }
 
             SongFormScreen(
                 viewModel = songViewModel,
                 songId = id,
                 onFinish = {
+                    // sincronizar playlist con el reproductor
+                    playerViewModel.setPlaylist(songViewModel.songs.value)
                     navController.popBackStack()
                 }
             )
@@ -69,6 +73,7 @@ fun AppNavigation() {
                 viewModel = songViewModel,
                 songId = null,
                 onFinish = {
+                    playerViewModel.setPlaylist(songViewModel.songs.value)
                     navController.popBackStack()
                 }
             )
