@@ -1,22 +1,23 @@
 package mx.edu.utez.integradoraaplicacionesmoviles.data.remote.api
 
-
 import mx.edu.utez.integradoraaplicacionesmoviles.data.remote.dto.SongDto
-import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.PUT
-import retrofit2.http.Path
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import retrofit2.http.*
 
 interface SongApi {
 
     @GET("songs")
     suspend fun getSongs(): List<SongDto>
 
+    @Multipart
     @POST("songs")
-    suspend fun insert(@Body song: SongDto): SongDto
+    suspend fun insert(
+        @Part file: MultipartBody.Part,
+        @Part("name") name: RequestBody,
+        @Part("artist") artist: RequestBody,
+        @Part("year") year: RequestBody
+    ): SongDto
 
     @PUT("songs/{id}")
     suspend fun update(

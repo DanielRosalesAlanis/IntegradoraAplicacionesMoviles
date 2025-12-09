@@ -21,7 +21,7 @@ class ProximityManager(context: Context) : SensorEventListener {
 
     fun start() {
         proximitySensor?.let {
-            sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
+            sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_FASTEST)
         }
     }
 
@@ -31,7 +31,10 @@ class ProximityManager(context: Context) : SensorEventListener {
 
     override fun onSensorChanged(event: SensorEvent?) {
         val value = event?.values?.getOrNull(0) ?: return
-        _isNear.value = value < (proximitySensor?.maximumRange ?: 0f)
+        val maxRange = proximitySensor?.maximumRange ?: 5f
+        val isNear = value < maxRange.coerceAtMost(5f)
+        android.util.Log.d("ProximityManager", "Sensor value: $value, isNear: $isNear")
+        _isNear.value = isNear
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}

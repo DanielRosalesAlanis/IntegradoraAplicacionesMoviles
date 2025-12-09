@@ -9,19 +9,28 @@ class MusicPlayer(context: Context) {
 
     private val player = ExoPlayer.Builder(context).build()
 
-    fun play(song: Song) {
+    fun play(song: Song, baseUrl: String = "http://192.168.107.123:5000/") {
         player.stop()
-        player.setMediaItem(MediaItem.fromUri(song.audioUrl ?: ""))
+        val url = baseUrl + "uploads/" + song.filePath
+        player.setMediaItem(MediaItem.fromUri(url))
         player.prepare()
         player.play()
     }
 
     fun pause() {
-        player.pause()
+        if (player.isPlaying) {
+            player.pause()
+        }
     }
 
     fun resume() {
-        player.play()
+        if (!player.isPlaying) {
+            player.play()
+        }
+    }
+
+    fun isPlaying(): Boolean {
+        return player.isPlaying
     }
 
     fun stop() {

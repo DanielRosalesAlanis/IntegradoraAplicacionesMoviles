@@ -1,12 +1,17 @@
 package mx.edu.utez.integradoraaplicacionesmoviles.ui.screens.songform
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import mx.edu.utez.integradoraaplicacionesmoviles.domain.model.Song
 import mx.edu.utez.integradoraaplicacionesmoviles.ui.viewmodel.SongViewModel
+import mx.edu.utez.integradoraaplicacionesmoviles.util.FilePickerHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -18,11 +23,27 @@ fun SongFormScreen(
     val songs by viewModel.songs.collectAsState()
     val song = songs.find { it.id == songId }
 
-    var title by remember { mutableStateOf(song?.title ?: "") }
-    var artist by remember { mutableStateOf(song?.artist ?: "") }
-    var duration by remember { mutableStateOf(song?.duration?.toString() ?: "") }
-    var imageUrl by remember { mutableStateOf(song?.imageUrl ?: "") }
-    var audioUrl by remember { mutableStateOf(song?.audioUrl ?: "") }
+    val context = LocalContext.current
+    var name by remember(song) { mutableStateOf(song?.name ?: "") }
+    var artist by remember(song) { mutableStateOf(song?.artist ?: "") }
+    var year by remember(song) { mutableStateOf(song?.year?.toString() ?: "") }
+    var filePath by remember(song) { mutableStateOf(song?.filePath ?: "") }
+    var selectedUri by remember { mutableStateOf<Uri?>(null) }
+    
+    LaunchedEffect(songId) {
+        if (songId != null) {
+            viewModel.loadSongs()
+        }
+    }
+    
+    val filePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            selectedUri = it
+            filePath = FilePickerHelper.getFileName(context, it)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -36,9 +57,9 @@ fun SongFormScreen(
         ) {
 
             OutlinedTextField(
-                value = title,
-                onValueChange = { title = it },
-                label = { Text("Título") },
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Nombre") },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -50,42 +71,68 @@ fun SongFormScreen(
             )
 
             OutlinedTextField(
-                value = duration,
-                onValueChange = { duration = it },
-                label = { Text("Duración (segundos)") },
+                value = year,
+                onValueChange = { year = it },
+                label = { Text("Año") },
                 modifier = Modifier.fillMaxWidth()
             )
 
-            OutlinedTextField(
-                value = imageUrl,
-                onValueChange = { imageUrl = it },
-                label = { Text("URL Imagen (opcional)") },
-                modifier = Modifier.fillMaxWidth()
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Text(
+                text = "Archivo: ${if (filePath.isNotEmpty()) filePath else "No seleccionado"}",
+                style = MaterialTheme.typography.bodyMedium
             )
-
-            OutlinedTextField(
-                value = audioUrl,
-                onValueChange = { audioUrl = it },
-                label = { Text("URL Audio") },
-                modifier = Modifier.fillMaxWidth()
-            )
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            if (songId == null) {
+                Button(
+                    onClick = { filePicker.launch("audio/*") },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Seleccionar MP3")
+                }
+            } else {
+                Text(
+                    text = "Nota: No se puede cambiar el archivo al editar",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
 
             Spacer(modifier = Modifier.height(20.dp))
 
             Button(
                 onClick = {
+                    android.util.Log.d("SongForm", "Guardar clicked")
+                    android.util.Log.d("SongForm", "name=$name, artist=$artist, year=$year")
+                    android.util.Log.d("SongForm", "filePath=$filePath, uri=$selectedUri")
+                    
+                    if (name.isEmpty() || artist.isEmpty() || year.isEmpty()) {
+                        android.util.Log.e("SongForm", "Campos vacíos")
+                        return@Button
+                    }
+                    
+                    if (songId == null && selectedUri == null) {
+                        android.util.Log.e("SongForm", "No se seleccionó archivo")
+                        return@Button
+                    }
+                    
                     val songObj = Song(
                         id = songId ?: 0,
-                        title = title,
+                        name = name,
                         artist = artist,
-                        duration = duration.toIntOrNull() ?: 0,
-                        imageUrl = imageUrl,
-                        audioUrl = audioUrl
+                        year = year.toIntOrNull() ?: 2024,
+                        filePath = filePath
                     )
+                    android.util.Log.d("SongForm", "Song object: $songObj")
 
                     if (songId == null) {
-                        viewModel.insertSong(songObj)
+                        android.util.Log.d("SongForm", "Calling insertSong")
+                        viewModel.insertSong(songObj, selectedUri)
                     } else {
+                        android.util.Log.d("SongForm", "Calling updateSong")
                         viewModel.updateSong(songObj)
                     }
 

@@ -10,6 +10,9 @@ class PlayerViewModel : ViewModel() {
     private var playlist: List<Song> = emptyList()
     private var currentIndex = 0
 
+    private val _currentSong = MutableStateFlow<Song?>(null)
+    val currentSong: StateFlow<Song?> = _currentSong
+
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying
 
@@ -20,11 +23,18 @@ class PlayerViewModel : ViewModel() {
 
     fun setCurrentSong(song: Song) {
         val index = playlist.indexOf(song)
-        if (index != -1) currentIndex = index
+        if (index != -1) {
+            currentIndex = index
+            _currentSong.value = song
+        }
     }
 
     fun getCurrentSong(): Song? {
-        return if (playlist.isNotEmpty()) playlist[currentIndex] else null
+        return _currentSong.value
+    }
+
+    private fun updateCurrentSong() {
+        _currentSong.value = if (playlist.isNotEmpty()) playlist[currentIndex] else null
     }
 
     fun markPlaying() {
@@ -38,6 +48,7 @@ class PlayerViewModel : ViewModel() {
     fun nextSong() {
         if (playlist.isNotEmpty()) {
             currentIndex = (currentIndex + 1) % playlist.size
+            updateCurrentSong()
         }
     }
 
@@ -45,6 +56,7 @@ class PlayerViewModel : ViewModel() {
         if (playlist.isNotEmpty()) {
             currentIndex =
                 if (currentIndex > 0) currentIndex - 1 else playlist.size - 1
+            updateCurrentSong()
         }
     }
 }

@@ -47,14 +47,15 @@ fun SongListScreen(
                         SongItemCard(
                             song = song,
                             onClick = {
-                                // ACTUALIZA LA PLAYLIST
                                 playerViewModel.setPlaylist(songs)
-
-                                // ESTABLECE ESTA COMO LA CANCIÓN ACTUAL
                                 playerViewModel.setCurrentSong(song)
-
-                                // LANZA LA REPRODUCCIÓN DESDE MainActivity
                                 onSongSelected()
+                            },
+                            onEdit = {
+                                onNavigateToForm(song.id)
+                            },
+                            onDelete = {
+                                viewModel.deleteSong(song.id)
                             }
                         )
                     }

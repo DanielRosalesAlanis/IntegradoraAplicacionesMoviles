@@ -1,30 +1,32 @@
 package mx.edu.utez.integradoraaplicacionesmoviles.data.remote.dto
 
+import com.google.gson.annotations.SerializedName
 import mx.edu.utez.integradoraaplicacionesmoviles.domain.model.Song
 
 data class SongDto(
-    val id: Int,
-    val title: String,
-    val artist: String,
-    val duration: Int,
-    val imageUrl: String?,
-    val audioUrl: String?
+    @SerializedName("id") val id: Int? = null,
+    @SerializedName("name") val name: String,
+    @SerializedName("artist") val artist: String,
+    @SerializedName("year") val year: Int,
+    @SerializedName("file_path") val filePath: String? = null
 )
 
-fun SongDto.toDomain() = Song(
-    id = id,
-    title = title,
-    artist = artist,
-    duration = duration,
-    imageUrl = imageUrl,
-    audioUrl = audioUrl
-)
+fun SongDto.toDomain(): Song {
+    return Song(
+        id = id ?: 0,
+        name = name,
+        artist = artist,
+        year = year,
+        filePath = filePath ?: ""
+    )
+}
 
-fun Song.toDto() = SongDto(
-    id = id,
-    title = title,
-    artist = artist,
-    duration = duration,
-    imageUrl = imageUrl,
-    audioUrl = audioUrl
-)
+fun Song.toDto(): SongDto {
+    return SongDto(
+        id = id,
+        name = name,
+        artist = artist,
+        year = year,
+        filePath = filePath
+    )
+}
