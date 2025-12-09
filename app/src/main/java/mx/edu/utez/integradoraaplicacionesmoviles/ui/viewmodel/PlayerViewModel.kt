@@ -26,6 +26,9 @@ class PlayerViewModel : ViewModel() {
     fun setPlaylist(songs: List<Song>) {
         playlist = songs
         currentIndex = 0
+        if (songs.isNotEmpty()) {
+            _currentSong.value = songs[0]
+        }
     }
 
     fun setCurrentSong(song: Song) {

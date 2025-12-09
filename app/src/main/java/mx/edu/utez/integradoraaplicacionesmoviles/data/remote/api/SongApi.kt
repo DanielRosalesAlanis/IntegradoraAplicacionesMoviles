@@ -8,7 +8,7 @@ import retrofit2.http.*
 interface SongApi {
 
     @GET("songs")
-    suspend fun getSongs(): List<SongDto>
+    suspend fun getSongs(): @JvmSuppressWildcards List<SongDto>
 
     @Multipart
     @POST("songs")
