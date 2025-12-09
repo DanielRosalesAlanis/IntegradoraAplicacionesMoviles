@@ -13,10 +13,14 @@ import mx.edu.utez.integradoraaplicacionesmoviles.ui.viewmodel.SongViewModel
 import mx.edu.utez.integradoraaplicacionesmoviles.ui.viewmodel.PlayerViewModel
 
 @Composable
-fun AppNavigation(playerViewModel: PlayerViewModel) {
-
+fun AppNavigation(
+    playerViewModel: PlayerViewModel,
+    songViewModel: SongViewModel,
+    onPlayPause: () -> Unit,
+    onNext: () -> Unit,
+    onPrevious: () -> Unit
+) {
     val navController = rememberNavController()
-    val songViewModel = SongViewModel()
 
     NavHost(
         navController = navController,
@@ -26,9 +30,11 @@ fun AppNavigation(playerViewModel: PlayerViewModel) {
         composable("home") {
             HomeScreen(
                 playerViewModel = playerViewModel,
-                onNavigateToSongs = { navController.navigate("songs") }
+                onNavigateToSongs = { navController.navigate("songs") },
+                onPlayPause = onPlayPause,
+                onNext = onNext,
+                onPrevious = onPrevious
             )
-
         }
 
         composable("songs") {

@@ -1,6 +1,11 @@
 package mx.edu.utez.integradoraaplicacionesmoviles.ui.screens.home
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -11,9 +16,12 @@ import mx.edu.utez.integradoraaplicacionesmoviles.ui.viewmodel.PlayerViewModel
 @Composable
 fun HomeScreen(
     playerViewModel: PlayerViewModel,
-    onNavigateToSongs: () -> Unit
+    onNavigateToSongs: () -> Unit,
+    onPlayPause: () -> Unit = {},
+    onNext: () -> Unit = {},
+    onPrevious: () -> Unit = {}
 ) {
-    val currentSong = playerViewModel.getCurrentSong()
+    val currentSong by playerViewModel.currentSong.collectAsState()
     val isPlaying by playerViewModel.isPlaying.collectAsState()
 
     Column(
@@ -30,8 +38,8 @@ fun HomeScreen(
 
         if (currentSong != null) {
             Text(text = "Canción actual:", style = MaterialTheme.typography.titleMedium)
-            Text(text = currentSong.title, style = MaterialTheme.typography.titleLarge)
-            Text(text = currentSong.artist, style = MaterialTheme.typography.bodyMedium)
+            Text(text = currentSong!!.name, style = MaterialTheme.typography.titleLarge)
+            Text(text = currentSong!!.artist, style = MaterialTheme.typography.bodyMedium)
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -44,27 +52,41 @@ fun HomeScreen(
 
             Row(horizontalArrangement = Arrangement.Center) {
 
-                Button(onClick = {
+                IconButton(onClick = {
                     playerViewModel.previousSong()
-                }) { Text("Anterior") }
-
-                Spacer(modifier = Modifier.width(10.dp))
-
-                Button(onClick = {
-                    if (isPlaying) {
-                        playerViewModel.markPaused()
-                    } else {
-                        playerViewModel.markPlaying()
-                    }
+                    onPrevious()
                 }) {
-                    Text(if (isPlaying) "Pausar" else "Reproducir")
+                    Icon(
+                        imageVector = Icons.Default.SkipPrevious,
+                        contentDescription = "Anterior",
+                        modifier = Modifier.size(48.dp)
+                    )
                 }
 
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(16.dp))
 
-                Button(onClick = {
+                IconButton(onClick = {
+                    onPlayPause()
+                }) {
+                    Icon(
+                        imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                        contentDescription = if (isPlaying) "Pausar" else "Reproducir",
+                        modifier = Modifier.size(64.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                IconButton(onClick = {
                     playerViewModel.nextSong()
-                }) { Text("Siguiente") }
+                    onNext()
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.SkipNext,
+                        contentDescription = "Siguiente",
+                        modifier = Modifier.size(48.dp)
+                    )
+                }
             }
         } else {
             Text(text = "No hay canción seleccionada")
