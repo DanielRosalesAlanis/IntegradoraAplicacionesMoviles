@@ -21,6 +21,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var gestureDetector: GestureDetector
     private lateinit var musicPlayer: MusicPlayer
     private lateinit var playerViewModel: PlayerViewModel
+    
+    private var isPlaying = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,33 +40,25 @@ class MainActivity : ComponentActivity() {
         setContent {
             IntegradoraAplicacionesMovilesTheme {
                 val songViewModel = SongViewModel(this)
-AppNavigation(
+                AppNavigation(
                     playerViewModel = playerViewModel,
                     songViewModel = songViewModel,
                     onPlayPause = {
-                        android.util.Log.d("MainActivity", "onPlayPause button clicked")
-                        if (musicPlayer.isPlaying()) {
-                            android.util.Log.d("MainActivity", "Pausing from button")
-                            musicPlayer.pause()
-                            playerViewModel.markPaused()
-                        } else {
-                            android.util.Log.d("MainActivity", "Resuming from button")
-                            playerViewModel.getCurrentSong()?.let {
-                                musicPlayer.resume()
-                                playerViewModel.markPlaying()
-                            }
-                        }
+                        android.util.Log.d("MainActivity", "Button clicked")
+                        togglePlayPauseState()
                     },
                     onNext = {
                         playerViewModel.getCurrentSong()?.let {
                             musicPlayer.play(it)
                             playerViewModel.markPlaying()
+                            isPlaying = true
                         }
                     },
                     onPrevious = {
                         playerViewModel.getCurrentSong()?.let {
                             musicPlayer.play(it)
                             playerViewModel.markPlaying()
+                            isPlaying = true
                         }
                     }
                 )
@@ -92,24 +86,42 @@ AppNavigation(
 
     private fun observeGestures() {
         lifecycleScope.launch {
-            gestureDetector.gesture.collectLatest { gesture ->
-                if (gesture == Gesture.Toggle) {
-                    val isCurrentlyPlaying = musicPlayer.isPlaying()
-                    android.util.Log.d("MainActivity", "Toggle gesture, isPlaying=$isCurrentlyPlaying")
-                    
-                    if (isCurrentlyPlaying) {
-                        android.util.Log.d("MainActivity", "Pausing")
-                        musicPlayer.pause()
-                        playerViewModel.markPaused()
-                    } else {
-                        android.util.Log.d("MainActivity", "Playing")
-                        playerViewModel.getCurrentSong()?.let {
-                            musicPlayer.resume()
-                            playerViewModel.markPlaying()
-                        } ?: android.util.Log.e("MainActivity", "No song")
-                    }
+            gestureDetector.gesture.collect { gesture ->
+                if (gesture == Gesture.Tap) {
+                    android.util.Log.d("MainActivity", "Sensor Tap detected")
+                    startCountdown()
                 }
             }
+        }
+    }
+
+    private fun togglePlayPauseState() {
+        android.util.Log.d("MainActivity", "togglePlayPauseState - Before: isPlaying=$isPlaying")
+        
+        if (isPlaying) {
+            musicPlayer.pause()
+            playerViewModel.markPaused()
+            isPlaying = false
+        } else {
+            musicPlayer.resume()
+            playerViewModel.markPlaying()
+            isPlaying = true
+        }
+        
+        android.util.Log.d("MainActivity", "togglePlayPauseState - After: isPlaying=$isPlaying")
+    }
+    
+    private fun startCountdown() {
+        lifecycleScope.launch {
+            android.util.Log.d("MainActivity", "Starting countdown")
+            
+            for (i in 3 downTo 1) {
+                playerViewModel.setCountdown(i)
+                kotlinx.coroutines.delay(1000)
+            }
+            playerViewModel.setCountdown(0)
+            
+            togglePlayPauseState()
         }
     }
 }

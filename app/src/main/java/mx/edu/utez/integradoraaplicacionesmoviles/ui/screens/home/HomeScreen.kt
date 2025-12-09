@@ -97,5 +97,16 @@ fun HomeScreen(
         Button(onClick = onNavigateToSongs) {
             Text("Mis Canciones")
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        val countdown by playerViewModel.countdown.collectAsState()
+        if (countdown > 0) {
+            Text(
+                text = "$countdown",
+                style = MaterialTheme.typography.displayLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
     }
 }

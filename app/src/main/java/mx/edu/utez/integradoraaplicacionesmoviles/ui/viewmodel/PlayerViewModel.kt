@@ -16,6 +16,13 @@ class PlayerViewModel : ViewModel() {
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying
 
+    private val _countdown = MutableStateFlow(0)
+    val countdown: StateFlow<Int> = _countdown
+
+    fun setCountdown(value: Int) {
+        _countdown.value = value
+    }
+
     fun setPlaylist(songs: List<Song>) {
         playlist = songs
         currentIndex = 0

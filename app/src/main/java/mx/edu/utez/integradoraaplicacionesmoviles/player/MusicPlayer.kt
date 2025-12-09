@@ -15,17 +15,24 @@ class MusicPlayer(context: Context) {
         player.setMediaItem(MediaItem.fromUri(url))
         player.prepare()
         player.play()
+        android.util.Log.d("MusicPlayer", "Playing: ${song.name}")
     }
 
     fun pause() {
-        if (player.isPlaying) {
-            player.pause()
-        }
+        player.pause()
+        android.util.Log.d("MusicPlayer", "Paused, isPlaying=${player.isPlaying}")
     }
 
     fun resume() {
-        if (!player.isPlaying) {
-            player.play()
+        player.play()
+        android.util.Log.d("MusicPlayer", "Resumed, isPlaying=${player.isPlaying}")
+    }
+
+    fun togglePlayPause() {
+        if (player.isPlaying) {
+            pause()
+        } else {
+            resume()
         }
     }
 
