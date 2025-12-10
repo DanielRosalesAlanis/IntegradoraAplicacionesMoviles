@@ -9,7 +9,7 @@ class MusicPlayer(context: Context) {
 
     private val player = ExoPlayer.Builder(context).build()
 
-    fun play(song: Song, baseUrl: String = "http://192.168.107.123:5000/") {
+    fun play(song: Song, baseUrl: String = "http://192.168.0.10:5000/") {
         player.stop()
         val url = baseUrl + "uploads/" + song.filePath
         player.setMediaItem(MediaItem.fromUri(url))
