@@ -4,14 +4,15 @@ import android.content.Context
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import mx.edu.utez.integradoraaplicacionesmoviles.domain.model.Song
+import mx.edu.utez.integradoraaplicacionesmoviles.util.Constants
 
 class MusicPlayer(context: Context) {
 
     private val player = ExoPlayer.Builder(context).build()
 
-    fun play(song: Song, baseUrl: String = "http://192.168.0.10:5000/") {
+    fun play(song: Song) {
         player.stop()
-        val url = baseUrl + "uploads/" + song.filePath
+        val url = Constants.BASE_URL + "uploads/" + song.filePath
         player.setMediaItem(MediaItem.fromUri(url))
         player.prepare()
         player.play()
