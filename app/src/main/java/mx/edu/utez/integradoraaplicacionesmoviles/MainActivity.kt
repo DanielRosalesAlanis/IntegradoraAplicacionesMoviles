@@ -36,6 +36,7 @@ class MainActivity : ComponentActivity() {
         // Observadores
         observeProximitySensor()
         observeGestures()
+        observeCurrentSong()
 
         setContent {
             IntegradoraAplicacionesMovilesTheme {
@@ -44,22 +45,14 @@ class MainActivity : ComponentActivity() {
                     playerViewModel = playerViewModel,
                     songViewModel = songViewModel,
                     onPlayPause = {
-                        android.util.Log.d("MainActivity", "Button clicked")
+                        android.util.Log.d("MainActivity", "Botón presionado")
                         togglePlayPauseState()
                     },
                     onNext = {
-                        playerViewModel.getCurrentSong()?.let {
-                            musicPlayer.play(it)
-                            playerViewModel.markPlaying()
-                            isPlaying = true
-                        }
+                        playerViewModel.nextSong()
                     },
                     onPrevious = {
-                        playerViewModel.getCurrentSong()?.let {
-                            musicPlayer.play(it)
-                            playerViewModel.markPlaying()
-                            isPlaying = true
-                        }
+                        playerViewModel.previousSong()
                     }
                 )
             }
@@ -88,7 +81,7 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             gestureDetector.gesture.collect { gesture ->
                 if (gesture == Gesture.Tap) {
-                    android.util.Log.d("MainActivity", "Sensor Tap detected")
+                    android.util.Log.d("MainActivity", "Gesto detectado por sensor")
                     startCountdown()
                 }
             }
@@ -96,7 +89,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun togglePlayPauseState() {
-        android.util.Log.d("MainActivity", "togglePlayPauseState - Before: isPlaying=$isPlaying")
+        android.util.Log.d("MainActivity", "togglePlayPauseState - Antes: isPlaying=$isPlaying")
         
         if (isPlaying) {
             musicPlayer.pause()
@@ -108,12 +101,29 @@ class MainActivity : ComponentActivity() {
             isPlaying = true
         }
         
-        android.util.Log.d("MainActivity", "togglePlayPauseState - After: isPlaying=$isPlaying")
+        android.util.Log.d("MainActivity", "togglePlayPauseState - Después: isPlaying=$isPlaying")
+    }
+    
+    private fun observeCurrentSong() {
+        var isFirstLoad = true
+        lifecycleScope.launch {
+            playerViewModel.currentSong.collect { song ->
+                if (song != null && !isFirstLoad) {
+                    android.util.Log.d("MainActivity", "Nueva canción seleccionada: ${song.name}")
+                    musicPlayer.play(song)
+                    playerViewModel.markPlaying()
+                    isPlaying = true
+                }
+                if (song != null) {
+                    isFirstLoad = false
+                }
+            }
+        }
     }
     
     private fun startCountdown() {
         lifecycleScope.launch {
-            android.util.Log.d("MainActivity", "Starting countdown")
+            android.util.Log.d("MainActivity", "Iniciando cuenta regresiva")
             
             for (i in 3 downTo 1) {
                 playerViewModel.setCountdown(i)

@@ -21,6 +21,16 @@ fun AppNavigation(
     onPrevious: () -> Unit
 ) {
     val navController = rememberNavController()
+    
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        songViewModel.loadSongs()
+    }
+    
+    androidx.compose.runtime.LaunchedEffect(songViewModel.songs.value) {
+        if (songViewModel.songs.value.isNotEmpty()) {
+            playerViewModel.setPlaylist(songViewModel.songs.value)
+        }
+    }
 
     NavHost(
         navController = navController,
@@ -45,7 +55,8 @@ fun AppNavigation(
                     val route = if (songId != null) "songForm/$songId" else "songForm"
                     navController.navigate(route)
                 },
-                onSongSelected = {
+                onSongSelected = { selectedSong ->
+                    playerViewModel.setCurrentSong(selectedSong)
                     navController.navigate("home")
                 }
             )

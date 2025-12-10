@@ -99,10 +99,7 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(
-                        onClick = {
-                            playerViewModel.previousSong()
-                            onPrevious()
-                        },
+                        onClick = onPrevious,
                         modifier = Modifier.size(56.dp)
                     ) {
                         Icon(
@@ -128,10 +125,7 @@ fun HomeScreen(
                     }
 
                     IconButton(
-                        onClick = {
-                            playerViewModel.nextSong()
-                            onNext()
-                        },
+                        onClick = onNext,
                         modifier = Modifier.size(56.dp)
                     ) {
                         Icon(
@@ -173,7 +167,7 @@ fun HomeScreen(
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "No hay canciones",
+                            text = "Ninguna canción seleccionada",
                             style = MaterialTheme.typography.titleLarge,
                             color = Color.White
                         )
@@ -185,7 +179,7 @@ fun HomeScreen(
                                 contentColor = Color.Black
                             )
                         ) {
-                            Text("AGREGAR CANCIONES")
+                            Text("VER BIBLIOTECA")
                         }
                     }
                 }

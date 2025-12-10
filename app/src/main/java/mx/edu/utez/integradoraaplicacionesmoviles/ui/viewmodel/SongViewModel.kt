@@ -34,15 +34,15 @@ class SongViewModel(private val context: android.content.Context) : ViewModel() 
     }
 
     fun insertSong(song: Song, fileUri: android.net.Uri?) {
-        android.util.Log.d("SongViewModel", "insertSong called: $song, uri: $fileUri")
+        android.util.Log.d("SongViewModel", "insertSong llamado: $song, uri: $fileUri")
         viewModelScope.launch {
             try {
-                android.util.Log.d("SongViewModel", "Calling repository.insert...")
+                android.util.Log.d("SongViewModel", "Llamando repository.insert...")
                 val result = repository.insert(song, fileUri)
-                android.util.Log.d("SongViewModel", "Insert success: $result")
+                android.util.Log.d("SongViewModel", "Insertar exitoso: $result")
                 loadSongs()
             } catch (e: Exception) {
-                android.util.Log.e("SongViewModel", "Insert error", e)
+                android.util.Log.e("SongViewModel", "Error al insertar", e)
                 e.printStackTrace()
             }
         }
@@ -54,7 +54,7 @@ class SongViewModel(private val context: android.content.Context) : ViewModel() 
                 repository.update(song)
                 loadSongs()
             } catch (e: Exception) {
-                android.util.Log.e("SongViewModel", "Update error", e)
+                android.util.Log.e("SongViewModel", "Error al actualizar", e)
                 e.printStackTrace()
             }
         }
@@ -66,7 +66,7 @@ class SongViewModel(private val context: android.content.Context) : ViewModel() 
                 repository.delete(id)
                 loadSongs()
             } catch (e: Exception) {
-                android.util.Log.e("SongViewModel", "Delete error", e)
+                android.util.Log.e("SongViewModel", "Error al eliminar", e)
                 e.printStackTrace()
             }
         }

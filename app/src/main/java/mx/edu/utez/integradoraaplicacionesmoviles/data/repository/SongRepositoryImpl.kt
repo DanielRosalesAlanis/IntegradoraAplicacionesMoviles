@@ -23,25 +23,25 @@ class SongRepositoryImpl(
     }
 
     override suspend fun insert(song: Song, fileUri: Uri?): Song {
-        android.util.Log.d("SongRepo", "Insert called with uri: $fileUri")
+        android.util.Log.d("SongRepo", "Insertar llamado con uri: $fileUri")
         if (fileUri == null) {
-            android.util.Log.e("SongRepo", "File URI is null")
-            throw IllegalArgumentException("File URI is required")
+            android.util.Log.e("SongRepo", "URI del archivo es nulo")
+            throw IllegalArgumentException("URI del archivo es requerido")
         }
         
         val inputStream = context.contentResolver.openInputStream(fileUri)
         if (inputStream == null) {
-            android.util.Log.e("SongRepo", "Cannot open input stream")
-            throw IllegalArgumentException("Cannot open file")
+            android.util.Log.e("SongRepo", "No se puede abrir el flujo de entrada")
+            throw IllegalArgumentException("No se puede abrir el archivo")
         }
         
         val tempFile = File(context.cacheDir, song.filePath)
-        android.util.Log.d("SongRepo", "Temp file: ${tempFile.absolutePath}")
+        android.util.Log.d("SongRepo", "Archivo temporal: ${tempFile.absolutePath}")
         
         tempFile.outputStream().use { outputStream ->
             inputStream.copyTo(outputStream)
         }
-        android.util.Log.d("SongRepo", "File copied, size: ${tempFile.length()}")
+        android.util.Log.d("SongRepo", "Archivo copiado, tamaño: ${tempFile.length()}")
         
         val requestFile = tempFile.asRequestBody("audio/*".toMediaTypeOrNull())
         val filePart = MultipartBody.Part.createFormData("file", tempFile.name, requestFile)
@@ -50,9 +50,9 @@ class SongRepositoryImpl(
         val artistBody = song.artist.toRequestBody("text/plain".toMediaTypeOrNull())
         val yearBody = song.year.toString().toRequestBody("text/plain".toMediaTypeOrNull())
         
-        android.util.Log.d("SongRepo", "Calling API insert...")
+        android.util.Log.d("SongRepo", "Llamando insertar API...")
         val result = api.insert(filePart, nameBody, artistBody, yearBody).toDomain()
-        android.util.Log.d("SongRepo", "API insert success: $result")
+        android.util.Log.d("SongRepo", "Insertar API exitoso: $result")
         return result
     }
 

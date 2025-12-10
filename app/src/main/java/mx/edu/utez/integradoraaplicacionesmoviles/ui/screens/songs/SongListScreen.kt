@@ -28,7 +28,7 @@ fun SongListScreen(
     viewModel: SongViewModel,
     playerViewModel: PlayerViewModel,
     onNavigateToForm: (Int?) -> Unit,
-    onSongSelected: () -> Unit
+    onSongSelected: (Song) -> Unit
 ) {
     val songs by viewModel.songs.collectAsState()
     val loading by viewModel.loading.collectAsState()
@@ -76,7 +76,7 @@ fun SongListScreen(
                             onClick = {
                                 playerViewModel.setPlaylist(songs)
                                 playerViewModel.setCurrentSong(song)
-                                onSongSelected()
+                                onSongSelected(song)
                             },
                             onEdit = {
                                 onNavigateToForm(song.id)

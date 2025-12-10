@@ -25,7 +25,24 @@ class PlayerViewModel : ViewModel() {
 
     fun setPlaylist(songs: List<Song>) {
         playlist = songs
-        currentIndex = 0
+        if (songs.isNotEmpty()) {
+            if (_currentSong.value == null) {
+                val lastSong = songs.maxByOrNull { it.id }
+                if (lastSong != null) {
+                    currentIndex = songs.indexOf(lastSong)
+                    _currentSong.value = lastSong
+                } else {
+                    currentIndex = 0
+                    _currentSong.value = songs[0]
+                }
+            } else {
+                val currentSong = _currentSong.value
+                val newIndex = songs.indexOfFirst { it.id == currentSong?.id }
+                if (newIndex != -1) {
+                    currentIndex = newIndex
+                }
+            }
+        }
     }
 
     fun setCurrentSong(song: Song) {
@@ -53,17 +70,25 @@ class PlayerViewModel : ViewModel() {
     }
 
     fun nextSong() {
+        android.util.Log.d("PlayerViewModel", "nextSong - playlist size: ${playlist.size}, currentIndex: $currentIndex")
         if (playlist.isNotEmpty()) {
+            val oldIndex = currentIndex
             currentIndex = (currentIndex + 1) % playlist.size
+            android.util.Log.d("PlayerViewModel", "nextSong - changed from $oldIndex to $currentIndex")
             updateCurrentSong()
+            android.util.Log.d("PlayerViewModel", "nextSong - new song: ${_currentSong.value?.name}")
         }
     }
 
     fun previousSong() {
+        android.util.Log.d("PlayerViewModel", "previousSong - playlist size: ${playlist.size}, currentIndex: $currentIndex")
         if (playlist.isNotEmpty()) {
+            val oldIndex = currentIndex
             currentIndex =
                 if (currentIndex > 0) currentIndex - 1 else playlist.size - 1
+            android.util.Log.d("PlayerViewModel", "previousSong - changed from $oldIndex to $currentIndex")
             updateCurrentSong()
+            android.util.Log.d("PlayerViewModel", "previousSong - new song: ${_currentSong.value?.name}")
         }
     }
 }
