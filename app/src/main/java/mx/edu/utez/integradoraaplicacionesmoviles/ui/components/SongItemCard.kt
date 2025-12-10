@@ -9,7 +9,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,6 +29,7 @@ fun SongItemCard(
     onEdit: () -> Unit = {},
     onDelete: () -> Unit = {}
 ) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
             .aspectRatio(1f)
@@ -96,7 +97,7 @@ fun SongItemCard(
                     )
                 }
                 IconButton(
-                    onClick = onDelete,
+                    onClick = { showDeleteDialog = true },
                     modifier = Modifier.size(32.dp)
                 ) {
                     Icon(
@@ -108,5 +109,47 @@ fun SongItemCard(
                 }
             }
         }
+    }
+    
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = {
+                Text(
+                    text = "Eliminar canción",
+                    color = Color.White
+                )
+            },
+            text = {
+                Text(
+                    text = "¿Estás seguro de que quieres eliminar '${song.name}'?",
+                    color = Color(0xFFB3B3B3)
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        onDelete()
+                    }
+                ) {
+                    Text(
+                        text = "Eliminar",
+                        color = Color.Red
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDeleteDialog = false }
+                ) {
+                    Text(
+                        text = "Cancelar",
+                        color = Color.White
+                    )
+                }
+            },
+            containerColor = Color(0xFF282828)
+        )
     }
 }

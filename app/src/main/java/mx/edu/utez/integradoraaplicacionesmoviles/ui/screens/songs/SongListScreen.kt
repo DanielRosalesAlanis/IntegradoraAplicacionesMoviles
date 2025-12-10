@@ -10,8 +10,10 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import mx.edu.utez.integradoraaplicacionesmoviles.domain.model.Song
@@ -32,6 +34,9 @@ fun SongListScreen(
 ) {
     val songs by viewModel.songs.collectAsState()
     val loading by viewModel.loading.collectAsState()
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         viewModel.loadSongs()
@@ -42,6 +47,10 @@ fun SongListScreen(
             .fillMaxSize()
             .background(Color(0xFF121212))
     ) {
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -83,6 +92,12 @@ fun SongListScreen(
                             },
                             onDelete = {
                                 viewModel.deleteSong(song.id)
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = "Canción eliminada: ${song.name}",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
                             }
                         )
                     }
